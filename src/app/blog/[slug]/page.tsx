@@ -284,7 +284,7 @@ export default function BlogPost({ params }: { params: { slug: string } }) {
   const router = useRouter();
 
   const[isAuthenticated, setIsAuthenticated] = useState(false);
-  const [comments, setComments] = useState<{ name: string; comment:string }[]>([]);
+  const [comments, setComments] = useState<{ name: string; comment:string; timestamp: string }[]>([]);
   const [newComment, setNewComment] = useState("");
   const [name, setName] = useState("");
 
@@ -295,6 +295,11 @@ export default function BlogPost({ params }: { params: { slug: string } }) {
     } else {
       router.push("/login"); 
     }
+
+    const savedComments = localStorage.getItem("comments");
+    if (savedComments) {
+      setComments(JSON.parse(savedComments));
+    }
   }, [router]);
 
   const handleLogout = () => {
@@ -304,7 +309,12 @@ export default function BlogPost({ params }: { params: { slug: string } }) {
 
   const handleAddComment = () => {
     if (newComment.trim() && name.trim()) {
-      setComments([...comments, { name, comment: newComment }]);
+      const timestamp = new Date().toLocaleString();
+      const updatedComments = [...comments, { name, comment: newComment, timestamp }];
+      setComments(updatedComments);
+
+      localStorage.setItem("comments", JSON.stringify(updatedComments));
+
       setNewComment("");
       setName("");
     }
